@@ -1,0 +1,15 @@
+/docs/
+/@docs/
+/.codex
+/.idea/
+/.vscode/
+/.env
+/.env.*
+!/.env.example
+/backend/bin/
+/backend/dist/
+/coverage.out
+/*.log
+/.DS_Store
+/Thumbs.db
+/.kateproject.notes
