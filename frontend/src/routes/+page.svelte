@@ -1,33 +1,108 @@
 <script lang="ts">
-	const metrics = [
-		{
-			label: 'Central Processor',
-			value: '75.4%',
-			icon: 'memory',
-			color: '#ffb77f',
-			left: 'CORE_LOAD_SPIKE',
-			right: 'NODE-04 ACTIVE',
-			bars: [24, 38, 32, 64, 78, 92]
-		},
-		{
-			label: 'Memory Usage',
-			value: '40.2%',
-			icon: 'developer_board',
-			color: '#6feee1',
-			left: 'BUFFER_HEALTHY',
-			right: '64GB ECC LPDDR5',
-			bars: [52, 52, 58, 50, 48, 56]
-		},
-		{
-			label: 'SSD Pool',
-			value: '60.1%',
-			icon: 'database',
-			color: '#5adace',
-			left: 'NVME_ARRAY_01',
-			right: 'STABLE',
-			bars: [62, 64, 64, 72, 80, 84]
+	import { onMount } from 'svelte';
+	import { getMetrics, getHealth } from '$lib/api';
+	import type { MetricsResponse } from '$lib/api/types';
+
+	let metrics: Array<{
+		label: string;
+		value: string;
+		icon: string;
+		color: string;
+		left: string;
+		right: string;
+		bars: number[];
+	}> = $state([]);
+
+	let isLoading = $state(true);
+	let error = $state<string | null>(null);
+
+	onMount(async () => {
+		console.log('[DEBUG] onMount started');
+		try {
+			console.log('[DEBUG] Calling getHealth...');
+			const healthData = await getHealth();
+			console.log('[DEBUG] Health response:', healthData);
+
+			console.log('[DEBUG] Calling getMetrics...');
+			const metricsData: MetricsResponse = await getMetrics();
+			console.log('[DEBUG] Metrics response:', metricsData);
+
+			console.log('[DEBUG] Processing metrics...');
+			metrics = metricsData.metrics.map((m) => {
+				const config = getMetricConfig(m.name);
+				console.log('[DEBUG] Processing metric:', m.name, 'config:', config);
+				return {
+					label: config.label,
+					value: formatValue(m.value, m.unit),
+					icon: config.icon,
+					color: config.color,
+					left: config.left,
+					right: config.right,
+					bars: generateMockBars()
+				};
+			});
+
+			console.log('[DEBUG] Final metrics array:', metrics);
+			console.log('[DEBUG] Metrics array length:', metrics.length);
+		} catch (e) {
+			console.error('[ERROR] Failed to load data:', e);
+			error = e instanceof Error ? e.message : 'Failed to load data';
+		} finally {
+			console.log('[DEBUG] Setting isLoading to false');
+			isLoading = false;
 		}
-	];
+	});
+
+	function getMetricConfig(name: string) {
+		const configs: Record<string, any> = {
+			cpu_usage_percent: {
+				label: 'Central Processor',
+				icon: 'memory',
+				color: '#ffb77f',
+				left: 'CORE_LOAD_SPIKE',
+				right: 'NODE-04 ACTIVE'
+			},
+			memory_usage_bytes: {
+				label: 'Memory Usage',
+				icon: 'developer_board',
+				color: '#6feee1',
+				left: 'BUFFER_HEALTHY',
+				right: '64GB ECC LPDDR5'
+			},
+			request_rate: {
+				label: 'Request Rate',
+				icon: 'speed',
+				color: '#5adace',
+				left: 'API_GATEWAY',
+				right: 'STABLE'
+			}
+		};
+		return (
+			configs[name] || {
+				label: name,
+				icon: 'show_chart',
+				color: '#6feee1',
+				left: 'ACTIVE',
+				right: 'MONITORING'
+			}
+		);
+	}
+
+	function formatValue(value: number, unit: string): string {
+		if (unit === 'percent') {
+			return `${value.toFixed(1)}%`;
+		} else if (unit === 'bytes') {
+			const gb = value / 1024 / 1024 / 1024;
+			return `${gb.toFixed(1)} GB`;
+		} else if (unit === 'requests_per_second') {
+			return `${value.toFixed(0)} RPS`;
+		}
+		return `${value} ${unit}`;
+	}
+
+	function generateMockBars(): number[] {
+		return Array.from({ length: 6 }, () => Math.floor(Math.random() * 60) + 30);
+	}
 
 	const intelligenceFeed = [
 		{
@@ -88,7 +163,16 @@
 
 	<div class="grid grid-cols-1 gap-5 xl:grid-cols-12">
 		<div class="grid grid-cols-1 gap-5 md:grid-cols-3 xl:col-span-12">
-			{#each metrics as metric}
+			{#if isLoading}
+					<div class="col-span-3 panel p-6 text-center">
+						<p class="text-on-surface-variant">Loading system metrics...</p>
+					</div>
+				{:else if error}
+					<div class="col-span-3 panel p-6 text-center">
+						<p class="text-error">{error}</p>
+					</div>
+				{:else}
+					{#each metrics as metric}
 				<article class="panel metric-card p-6" style={`--accent:${metric.color}`}>
 					<div class="relative z-10 flex items-start justify-between gap-3">
 						<div>
@@ -118,6 +202,7 @@
 					</div>
 				</article>
 			{/each}
+			{/if}
 		</div>
 
 		<div class="panel relative xl:col-span-8">
