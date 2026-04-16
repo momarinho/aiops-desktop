@@ -1,5 +1,6 @@
 import { API_BASE_URL } from './config';
 import type { HealthResponse, MetricsResponse } from './types';
+export { createMetricsStream } from './stream';
 
 export async function getHealth(): Promise<HealthResponse> {
 	const url = `${API_BASE_URL}/health`;

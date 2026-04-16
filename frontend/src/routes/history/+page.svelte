@@ -75,11 +75,11 @@
 					<h2 class="font-headline text-2xl font-bold">Resource Utilization</h2>
 					<div class="mt-3 flex flex-wrap gap-4">
 						<div class="flex items-center gap-2 font-label text-[0.62rem] uppercase tracking-[0.2em] text-on-surface-variant">
-							<span class="h-2 w-2 rounded-full bg-primary shadow-[0_0_8px_rgba(111,238,225,0.6)]"></span>
+							<span class="h-2 w-2 rounded-full bg-primary"></span>
 							CPU Core Alpha
 						</div>
 						<div class="flex items-center gap-2 font-label text-[0.62rem] uppercase tracking-[0.2em] text-on-surface-variant">
-							<span class="h-2 w-2 rounded-full bg-tertiary shadow-[0_0_8px_rgba(255,209,175,0.6)]"></span>
+							<span class="h-2 w-2 rounded-full bg-tertiary"></span>
 							Memory Stack
 						</div>
 					</div>
@@ -271,7 +271,7 @@
 
 	<div class="flex justify-end">
 		<div
-			class="rounded-2xl border border-outline-variant/15 bg-surface-container-high/80 p-4 shadow-[0_16px_38px_rgba(0,0,0,0.24)] backdrop-blur-xl"
+			class="rounded-2xl border border-outline-variant/15 bg-surface-container-high/80 p-4 backdrop-blur-xl"
 		>
 			<div class="flex items-center gap-4">
 				<div class="text-right">

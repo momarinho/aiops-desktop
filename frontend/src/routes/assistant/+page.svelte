@@ -2,7 +2,7 @@
 	<title>AIOps Control | Assistant</title>
 </svelte:head>
 
-<section class="flex min-h-[calc(100vh-9rem)] flex-col overflow-hidden rounded-[1.75rem] border border-outline-variant/10 bg-surface shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
+<section class="flex min-h-[calc(100vh-9rem)] flex-col overflow-hidden rounded-[1.75rem] border border-outline-variant/10 bg-surface">
 	<div
 		class="flex flex-col gap-4 border-b border-outline-variant/10 bg-surface-container-low px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8"
 	>

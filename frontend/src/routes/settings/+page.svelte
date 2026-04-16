@@ -227,7 +227,7 @@
 	</section>
 
 	<div
-		class="sticky bottom-4 flex flex-col gap-3 rounded-2xl border border-outline-variant/15 bg-background/80 p-4 shadow-[0_14px_36px_rgba(0,0,0,0.22)] backdrop-blur sm:flex-row sm:items-center sm:justify-between"
+		class="sticky bottom-4 flex flex-col gap-3 rounded-2xl border border-outline-variant/15 bg-background/80 p-4 backdrop-blur sm:flex-row sm:items-center sm:justify-between"
 	>
 		<div class="flex flex-wrap items-center gap-5 font-label text-[0.65rem] uppercase tracking-[0.22em] text-on-surface-variant/70">
 			<span class="flex items-center gap-2">
@@ -243,7 +243,7 @@
 				Discard Changes
 			</button>
 			<button
-				class="rounded-md bg-gradient-to-br from-primary to-primary-container px-6 py-3 font-label text-xs font-bold uppercase tracking-[0.22em] text-on-primary shadow-[0_14px_28px_rgba(79,209,197,0.18)] hover:opacity-90"
+				class="rounded-md bg-gradient-to-br from-primary to-primary-container px-6 py-3 font-label text-xs font-bold uppercase tracking-[0.22em] text-on-primary hover:opacity-90"
 			>
 				Save & Apply Config
 			</button>

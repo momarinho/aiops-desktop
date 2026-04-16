@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { getMetrics, getHealth } from '$lib/api';
-	import type { MetricsResponse } from '$lib/api/types';
+	import { createMetricsStream } from '$lib/api';
 
 	let metrics: Array<{
 		label: string;
@@ -15,42 +14,50 @@
 
 	let isLoading = $state(true);
 	let error = $state<string | null>(null);
+	let isConnected = $state(false);
 
-	onMount(async () => {
-		console.log('[DEBUG] onMount started');
-		try {
-			console.log('[DEBUG] Calling getHealth...');
-			const healthData = await getHealth();
-			console.log('[DEBUG] Health response:', healthData);
+	onMount(() => {
+		console.log('[DEBUG] Starting SSE connection...');
 
-			console.log('[DEBUG] Calling getMetrics...');
-			const metricsData: MetricsResponse = await getMetrics();
-			console.log('[DEBUG] Metrics response:', metricsData);
+		const eventSource = createMetricsStream(
+			(data) => {
+				console.log('[DEBUG] Received SSE data:', data);
 
-			console.log('[DEBUG] Processing metrics...');
-			metrics = metricsData.metrics.map((m) => {
-				const config = getMetricConfig(m.name);
-				console.log('[DEBUG] Processing metric:', m.name, 'config:', config);
-				return {
-					label: config.label,
-					value: formatValue(m.value, m.unit),
-					icon: config.icon,
-					color: config.color,
-					left: config.left,
-					right: config.right,
-					bars: generateMockBars()
-				};
-			});
+				// Atualizar métricas com dados recebidos
+				metrics = data.metrics.map((m: any) => {
+					const config = getMetricConfig(m.name);
+					console.log('[DEBUG] Processing metric:', m.name, 'config:', config);
+					return {
+						label: config.label,
+						value: formatValue(m.value, m.unit),
+						icon: config.icon,
+						color: config.color,
+						left: config.left,
+						right: config.right,
+						bars: generateMockBars()
+					};
+				});
 
-			console.log('[DEBUG] Final metrics array:', metrics);
-			console.log('[DEBUG] Metrics array length:', metrics.length);
-		} catch (e) {
-			console.error('[ERROR] Failed to load data:', e);
-			error = e instanceof Error ? e.message : 'Failed to load data';
-		} finally {
-			console.log('[DEBUG] Setting isLoading to false');
-			isLoading = false;
-		}
+				console.log('[DEBUG] Final metrics array:', metrics);
+				console.log('[DEBUG] Metrics array length:', metrics.length);
+
+				isLoading = false;
+				error = null;
+				isConnected = true;
+			},
+			(err) => {
+				console.error('[ERROR] SSE error:', err);
+				error = err.message;
+				isLoading = false;
+				isConnected = false;
+			}
+		);
+
+		// Cleanup ao desmontar componente
+		return () => {
+			eventSource.close();
+			isConnected = false;
+		};
 	});
 
 	function getMetricConfig(name: string) {
@@ -69,12 +76,26 @@
 				left: 'BUFFER_HEALTHY',
 				right: '64GB ECC LPDDR5'
 			},
-			request_rate: {
-				label: 'Request Rate',
-				icon: 'speed',
+			disk_usage_bytes: {
+				label: 'Disk Usage',
+				icon: 'storage',
 				color: '#5adace',
-				left: 'API_GATEWAY',
-				right: 'STABLE'
+				left: 'STORAGE_OK',
+				right: 'SSD RAID-0'
+			},
+			network_tx_bytes: {
+				label: 'Network TX',
+				icon: 'upload',
+				color: '#ffb77f',
+				left: 'UPLOAD',
+				right: 'GIGABIT'
+			},
+			network_rx_bytes: {
+				label: 'Network RX',
+				icon: 'download',
+				color: '#6feee1',
+				left: 'DOWNLOAD',
+				right: 'GIGABIT'
 			}
 		};
 		return (
@@ -142,9 +163,26 @@
 			<p class="font-label text-xs uppercase tracking-[0.28em] text-primary/70">
 				Real-time Telemetry & Neural Node Status
 			</p>
-			<h1 class="mt-2 font-headline text-4xl font-black tracking-tight text-on-surface">
-				System Overview
-			</h1>
+			<div class="flex items-center gap-3">
+				<h1 class="mt-2 font-headline text-4xl font-black tracking-tight text-on-surface">
+					System Overview
+				</h1>
+				{#if isConnected}
+					<div class="mt-3 flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1">
+						<span class="status-dot pulse-ring"></span>
+						<span class="font-label text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-primary">
+							LIVE
+						</span>
+					</div>
+				{:else}
+					<div class="mt-3 flex items-center gap-2 rounded-full bg-error/10 px-3 py-1">
+						<span class="inline-block h-2 w-2 rounded-full bg-error"></span>
+						<span class="font-label text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-error">
+							DISCONNECTED
+						</span>
+					</div>
+				{/if}
+			</div>
 		</div>
 
 		<div class="flex flex-wrap gap-3">
@@ -154,7 +192,7 @@
 				Export Logs
 			</button>
 			<button
-				class="rounded-md bg-gradient-to-br from-primary to-primary-container px-4 py-2 font-label text-[0.7rem] font-bold uppercase tracking-[0.26em] text-on-primary shadow-[0_14px_28px_rgba(79,209,197,0.18)] transition-opacity hover:opacity-90"
+				class="rounded-md bg-gradient-to-br from-primary to-primary-container px-4 py-2 font-label text-[0.7rem] font-bold uppercase tracking-[0.26em] text-on-primary transition-opacity hover:opacity-90"
 			>
 				Optimize Cluster
 			</button>
@@ -241,7 +279,7 @@
 						<div class="flex items-center gap-4">
 							<div class="hidden h-px w-14 bg-gradient-to-r from-primary/0 via-primary to-primary/0 sm:block"></div>
 							<div
-								class="world-node flex h-24 w-24 items-center justify-center rounded-full border-2 border-primary/45 bg-primary/10 shadow-[0_0_36px_rgba(111,238,225,0.16)]"
+								class="world-node flex h-24 w-24 items-center justify-center rounded-full border-2 border-primary/45 bg-primary/10"
 							>
 								<span class="material-symbols-outlined text-5xl text-primary">cloud</span>
 							</div>
@@ -333,7 +371,7 @@
 
 	<div class="flex justify-end">
 		<div
-			class="rounded-xl border border-outline-variant/15 bg-surface-container-highest/70 px-5 py-3 shadow-[0_12px_28px_rgba(0,0,0,0.24)] backdrop-blur"
+			class="rounded-xl border border-outline-variant/15 bg-surface-container-highest/70 px-5 py-3 backdrop-blur"
 		>
 			<div class="flex flex-wrap items-center gap-4 font-label text-[0.64rem] uppercase tracking-[0.22em]">
 				<div class="flex items-center gap-2">

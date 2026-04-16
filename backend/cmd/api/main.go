@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"aiops-desktop/backend/internal/config"
 	"aiops-desktop/backend/internal/httpapi"
@@ -21,12 +23,29 @@ func main() {
 		"environment", cfg.Environment,
 	)
 
+	// Create store
+	store := metrics.NewStore(100)
+
+	// Create collector
+	collector := metrics.NewCollector(log)
+
+	// Create and start collector loop
+	collectorLoop := metrics.NewCollectorLoop(collector, store, 2*time.Second)
+
+	// Start em goroutine (background)
+	go func() {
+		if err := collectorLoop.Start(context.Background()); err != nil {
+			log.Error("Collector loop failed", "error", err)
+		}
+	}()
+
 	// Create router
 	mux := http.NewServeMux()
 
 	// Register routes
 	mux.HandleFunc("/health", healthHandler)
-	mux.HandleFunc("/metrics", metrics.Handler(log))
+	mux.HandleFunc("/metrics", metrics.Handler(store, log))
+	mux.HandleFunc("/metrics/stream", metrics.StreamHandler(store, log))
 
 	// Apply CORS middleware
 	handler := httpapi.Middleware(mux)

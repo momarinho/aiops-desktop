@@ -67,7 +67,7 @@
 		<div class="px-3">
 			<div class="flex items-center gap-3">
 				<div
-					class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-container text-on-primary shadow-[0_0_20px_rgba(79,209,197,0.18)]"
+					class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-container text-on-primary"
 				>
 					<span class="material-symbols-outlined" style:font-variation-settings="'FILL' 1">
 						architecture

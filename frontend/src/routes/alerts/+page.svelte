@@ -54,7 +54,7 @@
 				Filter Logs
 			</button>
 			<button
-				class="flex items-center gap-2 rounded-md bg-gradient-to-br from-primary to-primary-container px-4 py-2 font-label text-[0.68rem] font-bold uppercase tracking-[0.22em] text-on-primary shadow-[0_14px_28px_rgba(79,209,197,0.18)] hover:opacity-90"
+				class="flex items-center gap-2 rounded-md bg-gradient-to-br from-primary to-primary-container px-4 py-2 font-label text-[0.68rem] font-bold uppercase tracking-[0.22em] text-on-primary hover:opacity-90"
 			>
 				<span class="material-symbols-outlined text-base">sync</span>
 				Refresh Stream
@@ -144,7 +144,7 @@
 								<div class="flex items-center gap-3">
 									<span
 										class="h-2 w-2 rounded-full"
-										style={`background:${row.dot}; box-shadow:0 0 10px ${row.dot}80`}
+										style={`background:${row.dot}`}
 									></span>
 									<span>{row.description}</span>
 								</div>
@@ -213,7 +213,7 @@
 			<div class="mt-6">
 				<div class="h-1.5 overflow-hidden rounded-full bg-surface-container-high">
 					<div
-						class="h-full rounded-full bg-primary shadow-[0_0_16px_rgba(111,238,225,0.35)]"
+						class="h-full rounded-full bg-primary"
 						style="width:85%"
 					></div>
 				</div>
