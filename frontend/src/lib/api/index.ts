@@ -1,5 +1,5 @@
 import { API_BASE_URL } from './config';
-import type { HealthResponse, MetricsResponse } from './types';
+import type { Alert, HealthResponse, MetricsResponse } from './types';
 export { createMetricsStream } from './stream';
 
 export async function getHealth(): Promise<HealthResponse> {
@@ -25,5 +25,39 @@ export async function getMetrics(): Promise<MetricsResponse> {
 	}
 	const data = await response.json();
 	console.log('[API] Metrics data:', data);
+	return data;
+}
+
+export async function getAlerts(): Promise<Alert[]> {
+	const url = `${API_BASE_URL}/alerts`;
+	console.log('[API] Fetching alerts from:', url);
+	const response = await fetch(url);
+	console.log('[API] Alerts response status:', response.status);
+	if (!response.ok) {
+		throw new Error(`Failed to fetch alerts: ${response.statusText}`);
+	}
+	const data = (await response.json()) as Alert[];
+	console.log('[API] Alerts data:', data);
+	return data;
+}
+
+export async function acknowledgeAlert(id: string): Promise<Alert> {
+	return postAlertAction(id, 'acknowledge');
+}
+
+export async function silenceAlert(id: string): Promise<Alert> {
+	return postAlertAction(id, 'silence');
+}
+
+async function postAlertAction(id: string, action: 'acknowledge' | 'silence'): Promise<Alert> {
+	const url = `${API_BASE_URL}/alerts/${id}/${action}`;
+	console.log(`[API] Posting alert action ${action} to:`, url);
+	const response = await fetch(url, { method: 'POST' });
+	console.log('[API] Alert action response status:', response.status);
+	if (!response.ok) {
+		throw new Error(`Failed to ${action} alert: ${response.statusText}`);
+	}
+	const data = (await response.json()) as Alert;
+	console.log('[API] Alert action data:', data);
 	return data;
 }

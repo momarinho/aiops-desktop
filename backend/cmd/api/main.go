@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"aiops-desktop/backend/internal/alerts"
 	"aiops-desktop/backend/internal/config"
 	"aiops-desktop/backend/internal/httpapi"
 	"aiops-desktop/backend/internal/logger"
@@ -25,12 +26,14 @@ func main() {
 
 	// Create store
 	store := metrics.NewStore(100)
+	alertStore := alerts.NewStore()
+	alertEvaluator := alerts.NewEvaluator(alertStore, alerts.DefaultRules())
 
 	// Create collector
 	collector := metrics.NewCollector(log)
 
 	// Create and start collector loop
-	collectorLoop := metrics.NewCollectorLoop(collector, store, 2*time.Second)
+	collectorLoop := metrics.NewCollectorLoop(collector, store, 2*time.Second, alertEvaluator.Evaluate)
 
 	// Start em goroutine (background)
 	go func() {
@@ -46,6 +49,9 @@ func main() {
 	mux.HandleFunc("/health", healthHandler)
 	mux.HandleFunc("/metrics", metrics.Handler(store, log))
 	mux.HandleFunc("/metrics/stream", metrics.StreamHandler(store, log))
+	mux.HandleFunc("GET /alerts", alerts.ListHandler(alertStore, log))
+	mux.HandleFunc("POST /alerts/{id}/acknowledge", alerts.AcknowledgeHandler(alertStore, log))
+	mux.HandleFunc("POST /alerts/{id}/silence", alerts.SilenceHandler(alertStore, log))
 
 	// Apply CORS middleware
 	handler := httpapi.Middleware(mux)

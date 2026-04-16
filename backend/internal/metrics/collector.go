@@ -41,20 +41,20 @@ func (c *Collector) CollectCPU() (float64, error) {
 	return percent[0], nil
 }
 
-func (c *Collector) CollectMemory() (float64, error) {
+func (c *Collector) CollectMemory() (usedBytes, usedPercent float64, err error) {
 	stats, err := mem.VirtualMemory()
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
-	return float64(stats.Used), nil
+	return float64(stats.Used), stats.UsedPercent, nil
 }
 
-func (c *Collector) CollectDisk() (float64, error) {
+func (c *Collector) CollectDisk() (usedBytes, usedPercent float64, err error) {
 	stats, err := disk.Usage("/")
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
-	return float64(stats.Used), nil
+	return float64(stats.Used), stats.UsedPercent, nil
 }
 
 func (c *Collector) CollectNetwork() (tx, rx float64, err error) {
@@ -82,12 +82,12 @@ func (c *Collector) CollectAll() (*SystemMetrics, error) {
 		c.logger.Warn("Failed to collect CPU", "error", err)
 	}
 
-	memVal, err := c.CollectMemory()
+	memVal, memPercent, err := c.CollectMemory()
 	if err != nil {
 		c.logger.Warn("Failed to collect memory", "error", err)
 	}
 
-	diskVal, err := c.CollectDisk()
+	diskVal, diskPercent, err := c.CollectDisk()
 	if err != nil {
 		c.logger.Warn("Failed to collect disk", "error", err)
 	}
@@ -98,10 +98,12 @@ func (c *Collector) CollectAll() (*SystemMetrics, error) {
 	}
 
 	return &SystemMetrics{
-		CPU:       cpuVal,
-		Memory:    memVal,
-		Disk:      diskVal,
-		NetworkTX: txVal,
-		NetworkRX: rxVal,
+		CPU:           cpuVal,
+		Memory:        memVal,
+		MemoryPercent: memPercent,
+		Disk:          diskVal,
+		DiskPercent:   diskPercent,
+		NetworkTX:     txVal,
+		NetworkRX:     rxVal,
 	}, nil
 }

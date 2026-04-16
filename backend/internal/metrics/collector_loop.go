@@ -6,20 +6,27 @@ import (
 )
 
 type CollectorLoop struct {
-	collector *Collector
-	store     *Store
-	interval  time.Duration
+	collector  *Collector
+	store      *Store
+	interval   time.Duration
+	onSnapshot func(*Snapshot)
 }
 
-func NewCollectorLoop(collector *Collector, store *Store, interval time.Duration) *CollectorLoop {
+func NewCollectorLoop(
+	collector *Collector,
+	store *Store,
+	interval time.Duration,
+	onSnapshot func(*Snapshot),
+) *CollectorLoop {
 	if interval <= 0 {
 		interval = 2 * time.Second
 	}
 
 	return &CollectorLoop{
-		collector: collector,
-		store:     store,
-		interval:  interval,
+		collector:  collector,
+		store:      store,
+		interval:   interval,
+		onSnapshot: onSnapshot,
 	}
 }
 
@@ -69,10 +76,24 @@ func (cl *CollectorLoop) collectAndStore() error {
 				Timestamp: now,
 			},
 			{
+				Type:      MetricTypeMemory,
+				Name:      "memory_usage_percent",
+				Value:     systemMetrics.MemoryPercent,
+				Unit:      "percent",
+				Timestamp: now,
+			},
+			{
 				Type:      MetricTypeDisk,
 				Name:      "disk_usage_bytes",
 				Value:     systemMetrics.Disk,
 				Unit:      "bytes",
+				Timestamp: now,
+			},
+			{
+				Type:      MetricTypeDisk,
+				Name:      "disk_usage_percent",
+				Value:     systemMetrics.DiskPercent,
+				Unit:      "percent",
 				Timestamp: now,
 			},
 			{
@@ -93,5 +114,10 @@ func (cl *CollectorLoop) collectAndStore() error {
 	}
 
 	cl.store.Put(snapshot)
+
+	if cl.onSnapshot != nil {
+		cl.onSnapshot(snapshot)
+	}
+
 	return nil
 }

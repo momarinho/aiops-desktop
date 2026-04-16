@@ -26,9 +26,11 @@ type Snapshot struct {
 }
 
 type SystemMetrics struct {
-	CPU       float64 `json:"cpu_percent"`
-	Memory    float64 `json:"memory_used_bytes"`
-	Disk      float64 `json:"disk_used_bytes"`
-	NetworkTX float64 `json:"network_tx_bytes"`
-	NetworkRX float64 `json:"network_rx_bytes"`
+	CPU           float64 `json:"cpu_percent"`
+	Memory        float64 `json:"memory_used_bytes"`
+	MemoryPercent float64 `json:"memory_percent"`
+	Disk          float64 `json:"disk_used_bytes"`
+	DiskPercent   float64 `json:"disk_percent"`
+	NetworkTX     float64 `json:"network_tx_bytes"`
+	NetworkRX     float64 `json:"network_rx_bytes"`
 }

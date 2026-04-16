@@ -22,6 +22,8 @@ AI-Ops Desktop is an observability and operational automation tool designed to r
 - 🔄 **Sprint 3:** Alert Engine (upcoming)
 - ⏸️ **Sprints 4-8:** Planned
 
+The frontend already includes mocked container-oriented controls and copy (collector toggles, restart/scale messaging, action history flavor), but the backend contract for those flows is still planned work.
+
 ## Design Decisions
 - Minimalist interface without glow/shadow effects for better readability
 - Flat colors and clean design focused on functionality
@@ -124,16 +126,16 @@ Use 1-week sprints. Rule: each sprint ends with something visible in the UI and 
 **Risk:** Evaluation rule becoming too complex too early.
 
 #### Sprint 4 — Safe Automation ⏸️
-**Goal:** Add guarded, auditable operational actions.
-**Demo:** UI executes auditable actions with confirmation.
+**Goal:** Add guarded, auditable operational actions, including container control.
+**Demo:** UI executes auditable actions with confirmation, including at least one container restart or scale flow.
 
-**Backend:** Action models, history, safe executor, execute `kill_process` with confirmation, feature flags.
+**Backend:** Action models, history, safe executor, allowlisted actions such as `kill_process`, `restart_container`, and `scale_container`, target validation, feature flags.
 
-**Frontend:** Confirmation modal, states (pending/success/failure), toggle for risky actions.
+**Frontend:** Confirmation modal, action states (pending/success/failure), toggle for risky actions, container control surface wired to real endpoints instead of mock copy.
 
-**Acceptance:** Every intent is recorded; dangerous actions require confirmation; no generic shell execution.
+**Acceptance:** Every intent is recorded; dangerous actions require confirmation; no generic shell execution; at least one container control action works end-to-end from UI to backend.
 
-**Risk:** Design being too broad creating security problems.
+**Risk:** Runtime-specific container behavior and permissions making the action layer too broad or unsafe.
 
 #### Sprint 5 — AI Explanation Flow ⏸️
 **Goal:** Explain alerts in structured operational language.
@@ -230,7 +232,7 @@ Receives { alert_id, context } and returns { summary, probable_cause, suggested_
 ```
 
 ### Actions & History
-Action and history endpoints — defined when implementing Sprint 4/6
+Action and history endpoints — defined when implementing Sprint 4/6, including typed container-control actions rather than generic command execution.
 
 Keep response forms consistent across sprints; document changes in README and changelog.
 
@@ -257,6 +259,7 @@ Keep response forms consistent across sprints; document changes in README and ch
 1. **Sprint 1 Complete** ✅: Create minimal Go backend and `health`/`metrics` endpoints.
 2. **Sprint 2 Complete** ✅: Configure frontend to consume `/health`, `/metrics`, and `/metrics/stream`.
 3. **Sprint 3 Next** 🔄: Implement Alert Engine with stateful alert management.
+4. **Sprint 4 After That** ⏸️: Wire the existing frontend container-control concepts to guarded backend actions.
 
 ## Contact
 

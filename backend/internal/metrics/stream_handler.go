@@ -34,7 +34,7 @@ func StreamHandler(store *Store, logger *slog.Logger) http.HandlerFunc {
 			case <-ticker.C:
 				if latest := store.GetLatest(); latest != nil {
 					if err := sendSSEEvent(w, latest, logger); err != nil {
-						logger.Error("Failed to send SSE event", "error")
+						logger.Error("Failed to send SSE event", "error", err)
 						return
 					}
 				}
