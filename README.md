@@ -2,7 +2,7 @@
 
 AI-Ops Desktop is an observability and operational automation tool designed to run as a desktop application with a Go backend and Svelte frontend. The goal is to deliver a complete workflow: host metrics collection, alert engine, safe auditable actions, and an AI assistant to explain alerts — all packaged as a desktop application.
 
-**Status:** Sprint 2 Complete ✅ | Next: Sprint 3 (Alert Engine)
+**Status:** Sprint 4 Complete ✅ | Next: Sprint 5 (AI Explanation Flow)
 
 ## Why this project?
 - To have a lightweight tool for monitoring and acting on local or remote machine issues.
@@ -19,10 +19,11 @@ AI-Ops Desktop is an observability and operational automation tool designed to r
 ## Current Progress
 - ✅ **Sprint 1:** Go Foundation (completed)
 - ✅ **Sprint 2:** Live Metrics Pipeline (completed)
-- 🔄 **Sprint 3:** Alert Engine (upcoming)
-- ⏸️ **Sprints 4-8:** Planned
+- ✅ **Sprint 3:** Alert Engine (completed)
+- ✅ **Sprint 4:** Safe Automation (completed)
+- ⏸️ **Sprints 5-8:** Planned
 
-The frontend already includes mocked container-oriented controls and copy (collector toggles, restart/scale messaging, action history flavor), but the backend contract for those flows is still planned work.
+The frontend already includes container control surfaces and the backend now exposes guarded action and history flows implemented in Sprint 4. The AI explanation flow, persistence refinements, packaging, and polish remain in upcoming sprints.
 
 ## Design Decisions
 - Minimalist interface without glow/shadow effects for better readability
@@ -48,7 +49,7 @@ go run ./cmd/api
 - `POST /alerts/:id/acknowledge` — Acknowledge alert (Sprint 3)
 - `POST /alerts/:id/silence` — Silence alert (Sprint 3)
 - `POST /ai/explain-alert` — Generate AI explanation (Sprint 5)
-- Action and history endpoints (Sprint 4 / Sprint 6)
+- Action and history endpoints — Implemented in Sprint 4 (see backend docs for exact routes and payloads)
 
 ### 2. Frontend
 Open a terminal in the `frontend` folder:
@@ -131,7 +132,7 @@ Use 1-week sprints. Rule: each sprint ends with something visible in the UI and 
 
 **Backend:** Action models, history, safe executor, allowlisted actions such as `kill_process`, `restart_container`, and `scale_container`, target validation, feature flags.
 
-**Frontend:** Confirmation modal, action states (pending/success/failure), toggle for risky actions, container control surface wired to real endpoints instead of mock copy.
+**Frontend:** Confirmation modal, action states (pending/success/failure), toggle for risky actions, container control surface wired to real endpoints.
 
 **Acceptance:** Every intent is recorded; dangerous actions require confirmation; no generic shell execution; at least one container control action works end-to-end from UI to backend.
 
@@ -178,14 +179,13 @@ Use 1-week sprints. Rule: each sprint ends with something visible in the UI and 
 **Demo:** New user understands the app; repo ready for demo.
 
 **Backend:** Better logs, error responses, API docs, missing tests.
-
 **Frontend:** Empty/loading/error states, copy, onboarding, screenshots.
 
 **Acceptance:** Clear README; screenshots; app stable for presentation.
 
 **Risk:** Focusing only on appearance and not reliability.
 
-**Recommended start:** Sprint 1 → Sprint 2 → Sprint 3.
+**Recommended start:** Sprint 1 → Sprint 2 → Sprint 3 → Sprint 4.
 
 ## Acceptance Criteria & Sprint Discipline
 
@@ -232,7 +232,7 @@ Receives { alert_id, context } and returns { summary, probable_cause, suggested_
 ```
 
 ### Actions & History
-Action and history endpoints — defined when implementing Sprint 4/6, including typed container-control actions rather than generic command execution.
+Action and history endpoints — implemented in Sprint 4; these are guarded, auditable flows (see backend docs for exact routes and payloads).
 
 Keep response forms consistent across sprints; document changes in README and changelog.
 
@@ -258,8 +258,9 @@ Keep response forms consistent across sprints; document changes in README and ch
 
 1. **Sprint 1 Complete** ✅: Create minimal Go backend and `health`/`metrics` endpoints.
 2. **Sprint 2 Complete** ✅: Configure frontend to consume `/health`, `/metrics`, and `/metrics/stream`.
-3. **Sprint 3 Next** 🔄: Implement Alert Engine with stateful alert management.
-4. **Sprint 4 After That** ⏸️: Wire the existing frontend container-control concepts to guarded backend actions.
+3. **Sprint 3 Complete** ✅: Alert Engine with stateful alerts.
+4. **Sprint 4 Complete** ✅: Safe, auditable actions and action history wired end-to-end.
+5. **Sprint 5 Next** 🔄: AI Explanation Flow.
 
 ## Contact
 
@@ -272,6 +273,6 @@ Define an appropriate license (for example MIT) by adding a LICENSE file to the 
 
 ---
 
-**Last Updated:** April 16, 2026
-**Current Sprint:** 2 (Complete)
-**Next Sprint:** 3 (Alert Engine)
+**Last Updated:** 2026-04-17
+**Current Sprint:** 4 (Complete)
+**Next Sprint:** 5 (AI Explanation Flow)
