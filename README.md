@@ -113,7 +113,7 @@ Use 1-week sprints. Rule: each sprint ends with something visible in the UI and 
 
 **Risk:** Cross-platform metric differences and noisy data shaping.
 
-#### Sprint 3 — Alert Engine 🔄
+#### Sprint 3 — Alert Engine ✅
 **Goal:** Convert telemetry into stateful alerts.
 **Demo:** When stressing the machine, alerts appear on the Alerts page.
 
@@ -125,7 +125,7 @@ Use 1-week sprints. Rule: each sprint ends with something visible in the UI and 
 
 **Risk:** Evaluation rule becoming too complex too early.
 
-#### Sprint 4 — Safe Automation ⏸️
+#### Sprint 4 — Safe Automation ✅
 **Goal:** Add guarded, auditable operational actions, including container control.
 **Demo:** UI executes auditable actions with confirmation, including at least one container restart or scale flow.
 

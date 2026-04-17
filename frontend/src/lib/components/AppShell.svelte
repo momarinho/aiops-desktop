@@ -10,9 +10,10 @@
 	const navigation: NavItem[] = [
 		{ href: '/', label: 'Dashboard', icon: 'dashboard' },
 		{ href: '/alerts', label: 'Alerts', icon: 'notifications' },
-		{ href: '/settings', label: 'Settings', icon: 'settings' },
+		{ href: '/actions', label: 'Actions', icon: 'terminal' },
 		{ href: '/history', label: 'History', icon: 'history' },
-		{ href: '/assistant', label: 'Assistant', icon: 'smart_toy' }
+		{ href: '/assistant', label: 'Assistant', icon: 'smart_toy' },
+		{ href: '/settings', label: 'Settings', icon: 'settings' }
 	];
 
 	const metaByPath: Record<string, { title: string; subtitle: string }> = {
@@ -24,9 +25,9 @@
 			title: 'Alerts Stream',
 			subtitle: 'Event Monitoring'
 		},
-		'/settings': {
-			title: 'Automation Settings',
-			subtitle: 'Config Control'
+		'/actions': {
+			title: 'System Actions',
+			subtitle: 'Safe Automation'
 		},
 		'/history': {
 			title: 'Temporal Logs',
@@ -35,6 +36,10 @@
 		'/assistant': {
 			title: 'Synthetic Architect',
 			subtitle: 'AI Operations'
+		},
+		'/settings': {
+			title: 'Automation Settings',
+			subtitle: 'Config Control'
 		}
 	};
 
@@ -154,6 +159,12 @@
 							class="font-label text-xs uppercase tracking-[0.22em] text-primary transition-opacity"
 						>
 							Connectivity
+						</a>
+						<a
+							href="/actions"
+							class="font-label text-xs uppercase tracking-[0.22em] text-on-surface-variant/70 transition-colors hover:text-primary"
+						>
+							Actions
 						</a>
 						<a
 							href="/history"

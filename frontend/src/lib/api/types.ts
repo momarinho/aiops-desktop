@@ -37,3 +37,42 @@ export interface Alert {
 	silenced_at?: string;
 	resolved_at?: string;
 }
+
+// Action Types
+export type ActionType = 'kill_process' | 'restart_container' | 'scale_container';
+export type ActionStatus = 'pending' | 'success' | 'failed';
+
+export interface Action {
+	id: string;
+	type: ActionType;
+	target: string;
+	parameters: Record<string, any>;
+	user: string;
+	request_time: string;
+	start_time?: string;
+	end_time?: string;
+	status: ActionStatus;
+	output?: string;
+	error?: string;
+	risky: boolean;
+}
+
+export interface ExecuteActionRequest {
+	type: ActionType;
+	target: string;
+	parameters?: Record<string, any>;
+	user: string;
+}
+
+// Process Types
+export interface ProcessInfo {
+	pid: number;
+	name: string;
+	user: string;
+	cpu_percent: number;
+	memory_mb: number;
+	create_time: string;
+	command: string;
+	is_critical: boolean;
+	status: 'critical' | 'system' | 'user';
+}
