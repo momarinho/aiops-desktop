@@ -15,6 +15,19 @@ func ListHandler(store *Store, logger *slog.Logger) http.HandlerFunc {
 	}
 }
 
+func GetByIDHandler(store *Store, logger *slog.Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		alert, found := store.GetByID(id)
+		if !found {
+			http.Error(w, "alert not found", http.StatusNotFound)
+			return
+		}
+
+		writeJSON(w, http.StatusOK, alert)
+	}
+}
+
 func AcknowledgeHandler(store *Store, logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")

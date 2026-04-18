@@ -6,16 +6,20 @@ import (
 )
 
 type Config struct {
-	Port        string
-	LogLevel    string
-	Environment string
+	Port             string
+	LogLevel         string
+	Environment      string
+	AIProvider       string
+	AITimeoutSeconds int
 }
 
 func Load() *Config {
 	return &Config{
-		Port:        getEnv("PORT", "8080"),
-		LogLevel:    getEnv("LOG_LEVEL", "info"),
-		Environment: getEnv("ENVIRONMENT", "development"),
+		Port:             getEnv("PORT", "8080"),
+		LogLevel:         getEnv("LOG_LEVEL", "info"),
+		Environment:      getEnv("ENVIRONMENT", "development"),
+		AIProvider:       getEnv("AI_PROVIDER", "rule-based"),
+		AITimeoutSeconds: getEnvAsInt("AI_TIMEOUT_SECONDS", 8),
 	}
 }
 

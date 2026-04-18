@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"os"
 	"time"
 
 	"aiops-desktop/backend/internal/actions"
+	"aiops-desktop/backend/internal/ai"
 	"aiops-desktop/backend/internal/alerts"
 	"aiops-desktop/backend/internal/config"
 	"aiops-desktop/backend/internal/httpapi"
@@ -33,6 +35,14 @@ func main() {
 	actionStore := actions.NewStore()
 	actionExecutor := actions.NewExecutor(log)
 	processMonitor := processes.NewMonitor(log)
+	hostname, _ := os.Hostname()
+	aiService := ai.NewService(
+		alertStore,
+		ai.NewProvider(cfg.AIProvider),
+		time.Duration(cfg.AITimeoutSeconds)*time.Second,
+		log,
+		hostname,
+	)
 
 	// Create collector
 	collector := metrics.NewCollector(log)
@@ -55,8 +65,10 @@ func main() {
 	mux.HandleFunc("/metrics", metrics.Handler(store, log))
 	mux.HandleFunc("/metrics/stream", metrics.StreamHandler(store, log))
 	mux.HandleFunc("GET /alerts", alerts.ListHandler(alertStore, log))
+	mux.HandleFunc("GET /alerts/{id}", alerts.GetByIDHandler(alertStore, log))
 	mux.HandleFunc("POST /alerts/{id}/acknowledge", alerts.AcknowledgeHandler(alertStore, log))
 	mux.HandleFunc("POST /alerts/{id}/silence", alerts.SilenceHandler(alertStore, log))
+	mux.HandleFunc("POST /ai/explain-alert", aiService.ExplainAlertHandler())
 	mux.HandleFunc("POST /actions", actions.ExecuteHandler(actionStore, actionExecutor, log))
 	mux.HandleFunc("GET /actions", actions.ListHandler(actionStore, log))
 	mux.HandleFunc("GET /actions/{id}", actions.GetByIDHandler(actionStore, log))

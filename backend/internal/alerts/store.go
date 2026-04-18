@@ -36,6 +36,18 @@ func (s *Store) List() []Alert {
 	return out
 }
 
+func (s *Store) GetByID(id string) (Alert, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	alert, ok := s.alerts[id]
+	if !ok {
+		return Alert{}, false
+	}
+
+	return *cloneAlert(alert), true
+}
+
 func (s *Store) Activate(rule Rule, value float64, at time.Time) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

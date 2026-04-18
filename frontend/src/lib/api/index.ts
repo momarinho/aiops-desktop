@@ -1,5 +1,15 @@
 import { API_BASE_URL } from './config';
-import type { Action, Alert, ExecuteActionRequest, HealthResponse, MetricsResponse, ProcessInfo } from './types';
+import type {
+	Action,
+	Alert,
+	ApiErrorResponse,
+	ExecuteActionRequest,
+	ExplainAlertRequest,
+	ExplainAlertResponse,
+	HealthResponse,
+	MetricsResponse,
+	ProcessInfo
+} from './types';
 export { createMetricsStream } from './stream';
 
 export async function getHealth(): Promise<HealthResponse> {
@@ -41,6 +51,19 @@ export async function getAlerts(): Promise<Alert[]> {
 	return data;
 }
 
+export async function getAlertById(id: string): Promise<Alert> {
+	const url = `${API_BASE_URL}/alerts/${id}`;
+	console.log('[API] Fetching alert from:', url);
+	const response = await fetch(url);
+	console.log('[API] Alert response status:', response.status);
+	if (!response.ok) {
+		throw new Error(await getApiErrorMessage(response, `Failed to fetch alert: ${response.statusText}`));
+	}
+	const data = (await response.json()) as Alert;
+	console.log('[API] Alert data:', data);
+	return data;
+}
+
 export async function acknowledgeAlert(id: string): Promise<Alert> {
 	return postAlertAction(id, 'acknowledge');
 }
@@ -62,6 +85,27 @@ async function postAlertAction(id: string, action: 'acknowledge' | 'silence'): P
 	return data;
 }
 
+export async function explainAlert(request: ExplainAlertRequest): Promise<ExplainAlertResponse> {
+	const url = `${API_BASE_URL}/ai/explain-alert`;
+	console.log('[API] Requesting alert explanation from:', url, request);
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(request)
+	});
+	console.log('[API] Explain alert response status:', response.status);
+	if (!response.ok) {
+		throw new Error(
+			await getApiErrorMessage(response, `Failed to explain alert: ${response.statusText}`)
+		);
+	}
+	const data = (await response.json()) as ExplainAlertResponse;
+	console.log('[API] Explain alert data:', data);
+	return data;
+}
+
 // Action API functions
 export async function getActions(): Promise<Action[]> {
 	const url = `${API_BASE_URL}/actions`;
@@ -74,6 +118,19 @@ export async function getActions(): Promise<Action[]> {
 	const data = (await response.json()) as Action[];
 	console.log('[API] Actions data:', data);
 	return data;
+}
+
+async function getApiErrorMessage(response: Response, fallback: string): Promise<string> {
+	try {
+		const error = (await response.json()) as ApiErrorResponse;
+		if (typeof error.error === 'string' && error.error.trim() !== '') {
+			return error.error;
+		}
+	} catch {
+		// Ignore parse failures and fall back to the caller-provided message.
+	}
+
+	return fallback;
 }
 
 export async function getActionById(id: string): Promise<Action> {

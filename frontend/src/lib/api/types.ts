@@ -38,6 +38,29 @@ export interface Alert {
 	resolved_at?: string;
 }
 
+export interface ExplainAlertContext {
+	hostname?: string;
+	service?: string;
+	recent_events?: string[];
+	recent_actions?: string[];
+	additional_notes?: string;
+}
+
+export interface ExplainAlertRequest {
+	alert_id: string;
+	context?: ExplainAlertContext;
+}
+
+export interface ExplainAlertResponse {
+	summary: string;
+	probable_cause: string;
+	suggested_actions: string[];
+}
+
+export interface ApiErrorResponse {
+	error: string;
+}
+
 // Action Types
 export type ActionType = 'kill_process' | 'restart_container' | 'scale_container';
 export type ActionStatus = 'pending' | 'success' | 'failed';

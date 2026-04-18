@@ -328,11 +328,17 @@
 									</span>
 								</td>
 								<td class="px-5 py-5 text-right">
-									<div class="flex justify-end gap-2">
-										<button
-											type="button"
-											class="rounded-md bg-outline-variant/20 px-3 py-2 font-label text-[0.62rem] uppercase tracking-[0.18em] text-on-surface transition-colors hover:bg-outline-variant/30 disabled:cursor-not-allowed disabled:opacity-40"
-											onclick={() => void handleAction(alert.id, 'acknowledge')}
+										<div class="flex justify-end gap-2">
+											<a
+												href={`/assistant?alert_id=${alert.id}`}
+												class="rounded-md bg-tertiary/10 px-3 py-2 font-label text-[0.62rem] uppercase tracking-[0.18em] text-tertiary transition-colors hover:bg-tertiary/20"
+											>
+												Explain
+											</a>
+											<button
+												type="button"
+												class="rounded-md bg-outline-variant/20 px-3 py-2 font-label text-[0.62rem] uppercase tracking-[0.18em] text-on-surface transition-colors hover:bg-outline-variant/30 disabled:cursor-not-allowed disabled:opacity-40"
+												onclick={() => void handleAction(alert.id, 'acknowledge')}
 											disabled={!canAcknowledge(alert) || !!pendingActions[alert.id]}
 										>
 											{isActionPending(alert.id, 'acknowledge') ? 'Working...' : 'Acknowledge'}

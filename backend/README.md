@@ -77,6 +77,80 @@ GET /metrics/stream
 Response: Server-Sent Events stream of metrics snapshots
 ```
 
+### Explain Alert
+
+`POST /ai/explain-alert`
+
+Explains an existing alert using backend alert data plus optional UI context.
+
+Request body:
+```json
+{
+  "alert_id": "cpu-high",
+  "context": {
+    "hostname": "workstation-01",
+    "service": "api",
+    "recent_events": [
+      "CPU usage spiked after deploy"
+    ],
+    "recent_actions": [
+      "restarted api container"
+    ],
+    "additional_notes": "User-facing latency increased"
+  }
+}
+```
+
+Request rules:
+- `alert_id` is required and must be a non-empty string.
+- `context` is optional.
+- All `context` fields are optional.
+- `recent_events` and `recent_actions` must be arrays of strings when provided.
+
+Success response:
+```json
+{
+  "summary": "Critical CPU alert on api: CPU usage is above threshold.",
+  "probable_cause": "A hot process or recent deploy likely increased CPU load.",
+  "suggested_actions": [
+    "Inspect top CPU-consuming processes.",
+    "Compare the alert start time with recent deploys.",
+    "Restart or scale only if the spike is sustained."
+  ]
+}
+```
+
+Response rules:
+- `summary` is required and must be a non-empty string.
+- `probable_cause` is required and must be a non-empty string.
+- `suggested_actions` is required and must be an array of strings.
+
+Errors:
+- `400` invalid request body or missing `alert_id`
+- `404` alert not found
+- `503` AI provider unavailable
+- `504` AI explanation timed out
+- `500` internal server error
+
+Error body:
+```json
+{
+  "error": "alert not found"
+}
+```
+
+Sprint 5 backend path:
+- Receive `alert_id` from the request body.
+- Load the alert from the in-memory alert store.
+- Build explanation input from stored alert data, local host data, and optional request `context`.
+- Call the configured AI provider through the provider abstraction.
+- Normalize provider output into the public response contract.
+- Handle timeout and provider failure with documented HTTP errors.
+
+Sprint 5 provider decision:
+- The first implementation is the `rule-based` provider to complete the end-to-end flow safely and quickly.
+- A real external LLM provider can be added next after the interface and response normalization are stable.
+
 ## Components
 
 ### Metrics Collector
