@@ -11,6 +11,7 @@ import (
 	"aiops-desktop/backend/internal/ai"
 	"aiops-desktop/backend/internal/alerts"
 	"aiops-desktop/backend/internal/config"
+	"aiops-desktop/backend/internal/db"
 	"aiops-desktop/backend/internal/httpapi"
 	"aiops-desktop/backend/internal/logger"
 	"aiops-desktop/backend/internal/metrics"
@@ -28,12 +29,27 @@ func main() {
 		"environment", cfg.Environment,
 	)
 
+	// Open db
+	database, closeDB, err := db.Open("./aiops.db")
+	if err != nil {
+		log.Error("failed to open database", "err", err)
+		os.Exit(1)
+	}
+	defer closeDB()
+
+	// Run migrations
+	if err := db.RunMigrations(database); err != nil {
+		log.Error("failed to run migrations", "err", err)
+		os.Exit(1)
+	}
+
 	// Create store
 	store := metrics.NewStore(100)
 	alertStore := alerts.NewStore()
 	alertEvaluator := alerts.NewEvaluator(alertStore, alerts.DefaultRules())
 	actionStore := actions.NewStore()
 	actionExecutor := actions.NewExecutor(log)
+
 	processMonitor := processes.NewMonitor(log)
 	hostname, _ := os.Hostname()
 	aiService := ai.NewService(

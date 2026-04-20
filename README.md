@@ -138,7 +138,7 @@ Use 1-week sprints. Rule: each sprint ends with something visible in the UI and 
 
 **Risk:** Runtime-specific container behavior and permissions making the action layer too broad or unsafe.
 
-#### Sprint 5 — AI Explanation Flow ⏸️
+#### Sprint 5 — AI Explanation Flow ✅
 **Goal:** Explain alerts in structured operational language.
 **Demo:** Select alert and see AI summary, probable cause, and next steps.
 
